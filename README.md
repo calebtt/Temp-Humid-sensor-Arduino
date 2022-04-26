@@ -1,6 +1,6 @@
 Arduino IDE project
 # Temp-Humid-sensor-Arduino
-Arduino temp and humidity sensor
+Arduino temp and humidity sensor on an Arduino Uno Wifi Rev2 (ATmega4809 8-bit microcontroller)
 <ul>
 Parts:
   <li>-SSD1306 oled display on I2C bus (128 x 64 pix)</li>
