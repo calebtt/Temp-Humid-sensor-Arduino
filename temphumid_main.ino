@@ -13,28 +13,28 @@
 #include "display_oled.h"
 #include "temp_humid_loop.h"
 
-//constants
-static constexpr uint16_t POLL_DELAY_MS{1000};
+//program constants
+static constexpr uint16_t POLL_DELAY_MS PROGMEM {1000};
 
 //DHT temp humid sensor setup
-static constexpr uint8_t DHT_SENSOR_TYPE{DHT_TYPE_11};
-static constexpr uint8_t DHT_SENSOR_PIN{7};
+static constexpr uint8_t DHT_SENSOR_TYPE PROGMEM {DHT_TYPE_11};
+static constexpr uint8_t DHT_SENSOR_PIN PROGMEM {7};
 DHT_nonblocking dh(DHT_SENSOR_PIN, DHT_SENSOR_TYPE);
 TempHumidLoop thl(dh);
 
 //display stuff
-static constexpr uint8_t WIDTH = 128; // OLED display width, in pixels
-static constexpr uint8_t HEIGHT = 64; // OLED display height, in pixels
+static constexpr uint8_t WIDTH PROGMEM {128}; // OLED display width, in pixels
+static constexpr uint8_t HEIGHT PROGMEM {64}; // OLED display height, in pixels
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 // The pins for I2C are defined by the Wire-library. 
-static constexpr uint8_t OLED_RESET{ 4 }; // Reset pin # (or -1 if sharing Arduino reset pin)
+static constexpr uint8_t OLED_RESET PROGMEM { 4 }; // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 ssd(WIDTH, HEIGHT, &Wire, OLED_RESET);
 DisplayOled displayManager(ssd);
 
 //wifi stuff TODO
 
 //relay stuff
-static constexpr uint8_t RELAY_PIN{10};
+static constexpr uint8_t RELAY_PIN PROGMEM {10};
 static uint8_t TEMP_LIMIT{80};
 
 
