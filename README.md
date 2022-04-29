@@ -8,3 +8,8 @@ Parts:
 <li>-Valefod DC 5V Relay Module 1-Channel on digital pins</li>
 <li>-Rotary encoder 5 pin on digital pins</li>
 </ul>
+<ul>
+  Features:
+  <li>Oled displays temp and humidity info, current relay activation range</li>
+  <li>rotation of rotary encoder used for setting  the current relay activation temp</li>
+</ul>
