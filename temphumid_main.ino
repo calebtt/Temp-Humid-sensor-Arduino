@@ -9,12 +9,10 @@
 #include <splash.h>
 #include <SD.h>
 #include <WiFiNINA.h>
+#include <SimpleRotary.h>
 
 #include "display_oled.h"
 #include "temp_humid_loop.h"
-
-//program constants
-static constexpr uint16_t POLL_DELAY_MS PROGMEM {1000};
 
 //DHT temp humid sensor setup
 static constexpr uint8_t DHT_SENSOR_TYPE PROGMEM {DHT_TYPE_11};
@@ -35,8 +33,42 @@ DisplayOled displayManager(ssd);
 
 //relay stuff
 static constexpr uint8_t RELAY_PIN PROGMEM {10};
-static uint8_t TEMP_LIMIT{80};
+int TEMP_LIMIT{80};
 
+//rotary encoder stuff
+static constexpr int8_t PROGMEM EncoderPinA{ 2 }; 
+static constexpr int8_t PROGMEM EncoderPinB{ 3 }; 
+static constexpr int8_t PROGMEM EncoderPinP{ 4 };
+SimpleRotary rotary(EncoderPinA,EncoderPinB,EncoderPinP);
+int rotaryCount{};
+
+// a function object for performing the relay toggle functionality
+//based on data in the temp_humid_loop file.
+//I think it's better than just a function pointer type callback,
+//as it may have encapsulated data or functions of it's own.
+class RelayCallback : public TempHumidLoop::FunctorBase
+{
+public:
+  virtual void operator()(const bool isAboveTemp) override
+  {
+  if(isAboveTemp)
+    digitalWrite(RELAY_PIN, HIGH);
+  else
+     digitalWrite(RELAY_PIN, LOW);
+  }
+};
+
+// Updates the temp limit variable using info from a rotary encoder.
+void UpdateTempLimitWithEncoder(int &tempLimit)
+{
+  const int rotaryEnumValue = rotary.rotate();
+  int updateValue{};
+  if( rotaryEnumValue == 1 )
+  updateValue = -1;
+  if( rotaryEnumValue == 2 )
+  updateValue = 1;
+  tempLimit += updateValue;
+}
 
 /* Initialize the serial port. */
 void setup( )
@@ -45,19 +77,20 @@ void setup( )
   pinMode(RELAY_PIN, OUTPUT);
   digitalWrite(RELAY_PIN, LOW);
   displayManager.InitDisplay();
+  rotary.setTrigger(HIGH);
+  rotary.setDebounceDelay(5);
+  rotary.setErrorDelay(5);
+  rotaryCount = rotary.rotate();
 }
 
 /* Main program loop. */
 void loop()
 {
-  String tempHumidString = thl.DoIteration();
-  const bool isAboveTemp = thl.IsAboveF(TEMP_LIMIT);
-  if(isAboveTemp)
-    digitalWrite(RELAY_PIN, HIGH);
-  else
-     digitalWrite(RELAY_PIN, LOW);
-  String msg = tempHumidString + "\n -- \nRelay temp limit: " + TEMP_LIMIT;
+  const String LineSep = "\n -- \n";
+  const auto [tempString, humidString] = thl.DoIteration(RelayCallback{}, TEMP_LIMIT);
+  String tempHumidString = tempString + LineSep + humidString;
+  String encoderString = LineSep + "Encoder report: " + String(rotaryCount);
+  String msg = tempHumidString + encoderString + LineSep + "Relay temp limit: " + TEMP_LIMIT;
+  UpdateTempLimitWithEncoder(TEMP_LIMIT);
   displayManager.DrawMessage(msg);
-  //displayManager.DrawMessage("Test...");
-  delay(POLL_DELAY_MS);
 }

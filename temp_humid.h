@@ -30,7 +30,7 @@ private:
   bool m_is_elapsed{false};
 public:
 //public interface
-  TempHumid() = delete; // explicitly deleted default ctor
+  TempHumid() = delete;
   explicit TempHumid(DHT_nonblocking &sens, TimeType interval) : m_dht_sensor(sens), DELAY_TIMESTAMP_MS(interval)
   { 
     assert(interval > 0); 
